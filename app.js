@@ -1,4 +1,4 @@
-import Character from './character.js';
+import Character from './character/character.js';
 
 class App {
   constructor(){
@@ -31,14 +31,6 @@ class App {
       y: undefined
     }
 
-    this.objects = [/*{
-      x: [300, 500, 500, 300],
-      y: [300, 300, 500, 500]
-    },
-*/    {
-      x: [550, 900, 800, 500],
-      y: [550, 400, 700, 700]
-    }]
     window.requestAnimationFrame(this.animate.bind(this));
   }
 
@@ -68,23 +60,7 @@ class App {
 
   animate() {
     this.context.clearRect(0,0, this.stageWidth, this.stageHeight);
-    this.character.action(this.click, this.objects);
-    
-    for(var idx in this.objects){
-      const self = this.objects[idx];
-      this.context.beginPath();
-      for(var key in self.x){
-        if(key === 0){
-          this.context.moveTo(self.x[key], self.y[key]);
-        }
-        else {
-          this.context.lineTo(self.x[key], self.y[key]);
-        }
-      }
-      this.context.fillStyle = 'rgb(255,255,255,0.7)';
-      this.context.fill();
-      this.context.closePath();
-    }
+    this.character.action(this.click);
     window.requestAnimationFrame(this.animate.bind(this));
   }
 }
