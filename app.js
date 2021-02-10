@@ -31,6 +31,17 @@ class App {
       y: undefined
     }
 
+    this.object =
+      [{
+        x: [400+Math.random()*100, 500+Math.random()*100, 600+Math.random()*100, 550+Math.random()*100, 450+Math.random()*100],
+        y: [400+Math.random()*100, 100+Math.random()*100, 400+Math.random()*100, 450+Math.random()*100, 450+Math.random()*100]
+      },
+      {
+        x: [500+Math.random()*100, 500+Math.random()*100, 600+Math.random()*100, 550+Math.random()*100, 450+Math.random()*100],
+        y: [700+Math.random()*100, 600+Math.random()*100, 700+Math.random()*100, 1000+Math.random()*100, 1000+Math.random()*100]
+      }
+    ]
+
     window.requestAnimationFrame(this.animate.bind(this));
   }
 
@@ -39,6 +50,7 @@ class App {
       x: e.offsetX,
       y: e.offsetY
     }
+    console.log(this.click);
     if(e.button === 2){
       this.rightClick = true;
     } else {
@@ -60,7 +72,28 @@ class App {
 
   animate() {
     this.context.clearRect(0,0, this.stageWidth, this.stageHeight);
-    this.character.action(this.click);
+    
+    
+    for(var key in this.object){
+      const self = this.object[key]
+      this.context.beginPath();
+      for(var idx in self.x) {
+        const x = self.x[idx];
+        const y = self.y[idx];
+        if(idx === 0){
+          this.context.moveTo(x, y);
+        }
+        else {
+          this.context.lineTo(x, y);
+        }
+      }
+      this.context.fill();
+      this.context.fillStyle = 'red';
+      this.context.closePath();
+    }
+
+    this.character.action(this.click, this.object);
+
     window.requestAnimationFrame(this.animate.bind(this));
   }
 }

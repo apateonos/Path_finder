@@ -16,7 +16,8 @@ export default function Character (settings) {
     lv: 1,
     hp: 100,
     mp: 10,
-    speed: 3,
+    maximumSpeed: 5,
+    speed: 0,
     mass: 30,
     attackSpeed: 10,
     ability: {
@@ -45,13 +46,15 @@ Character.prototype.move = function (isClicked, objects) {
 
   if( JSON.stringify(this.goal) !== JSON.stringify(isClicked) ){
     this.goal = isClicked;
+    
     this.path = [];
-    for (let i = 0; i < 3; i++) {
+    pathFinder(self, this.goal, objects);
+/*     for (let i = 0; i < 1; i++) {
       this.path.push({
         x: Math.random()*this.stageWidth,
         y: Math.random()*this.stageHeight
       })
-    }
+    } */
     const goal = {x: fx, y: fy};
     this.path.push(goal);
   }
@@ -67,9 +70,15 @@ Character.prototype.move = function (isClicked, objects) {
     const dir = direction(self, waypoint, self.speed);
     self.x += dir.x;
     self.y += dir.y;
+    if (self.speed < self.maximumSpeed){
+      self.speed += 0.1;
+    }
   } else {
     self.x = waypoint.x;
     self.y = waypoint.y;
+    if(self.speed > 0){
+      self.speed -= 0.1;
+    }
   }
 }
 
