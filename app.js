@@ -33,13 +33,19 @@ class App {
 
     this.object =
       [{
-        x: [400+Math.random()*100, 500+Math.random()*100, 600+Math.random()*100, 550+Math.random()*100, 450+Math.random()*100],
-        y: [400+Math.random()*100, 100+Math.random()*100, 400+Math.random()*100, 450+Math.random()*100, 450+Math.random()*100]
-      },
+        x: [400, 400],
+        y: [100, 500]
+      },{
+        x: [450, 450],
+        y: [600, 300]
+      },{
+        x: [500, 500],
+        y: [200, 400]  
+      }/* ,
       {
         x: [500+Math.random()*100, 500+Math.random()*100, 600+Math.random()*100, 550+Math.random()*100, 450+Math.random()*100],
         y: [700+Math.random()*100, 600+Math.random()*100, 700+Math.random()*100, 1000+Math.random()*100, 1000+Math.random()*100]
-      }
+      } */
     ]
 
     window.requestAnimationFrame(this.animate.bind(this));
@@ -50,7 +56,7 @@ class App {
       x: e.offsetX,
       y: e.offsetY
     }
-    console.log(this.click);
+    // console.log(this.click);
     if(e.button === 2){
       this.rightClick = true;
     } else {
@@ -87,8 +93,9 @@ class App {
           this.context.lineTo(x, y);
         }
       }
-      this.context.fill();
-      this.context.fillStyle = 'red';
+      this.context.lineWidth = 2;
+      this.context.stroke();
+      this.context.strokeStyle = 'rgb(255, 0, 0, 0.7)';
       this.context.closePath();
     }
 

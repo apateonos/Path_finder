@@ -46,38 +46,32 @@ Character.prototype.move = function (isClicked, objects) {
 
   if( JSON.stringify(this.goal) !== JSON.stringify(isClicked) ){
     this.goal = isClicked;
-    
-    this.path = [];
-    pathFinder(self, this.goal, objects);
-/*     for (let i = 0; i < 1; i++) {
-      this.path.push({
-        x: Math.random()*this.stageWidth,
-        y: Math.random()*this.stageHeight
-      })
-    } */
     const goal = {x: fx, y: fy};
-    this.path.push(goal);
+    this.path = [{x: self.x, y: self.y},{x: goal.x, y: goal.y}];
+    this.temp = pathFinder({x: self.x, y: self.y}, goal, objects);
   }
 
-  var waypoint = this.path[0];
-  const distance = Math.sqrt(Math.pow(self.x - waypoint.x, 2) + Math.pow(self.y - waypoint.y, 2), 2);
+  if( this.goal.x !== undefined ){
+    var waypoint = this.path[0];
+    const distance = Math.sqrt(Math.pow(self.x - waypoint.x, 2) + Math.pow(self.y - waypoint.y, 2), 2);
 
-  if( distance === 0 && this.path.length !== 1){
-    this.path.splice(0,1);
-  }
-
-  if( self.speed <= distance ) {
-    const dir = direction(self, waypoint, self.speed);
-    self.x += dir.x;
-    self.y += dir.y;
-    if (self.speed < self.maximumSpeed){
-      self.speed += 0.1;
+    if( distance === 0 && this.path.length !== 1){
+      this.path.splice(0,1);
     }
-  } else {
-    self.x = waypoint.x;
-    self.y = waypoint.y;
-    if(self.speed > 0){
-      self.speed -= 0.1;
+
+    if( self.speed <= distance ) {
+      const dir = direction(self, waypoint, self.speed);
+      self.x += dir.x;
+      self.y += dir.y;
+      if (self.speed < self.maximumSpeed){
+        self.speed += 0.1;
+      }
+    } else {
+      self.x = waypoint.x;
+      self.y = waypoint.y;
+      if(self.speed > 0){
+        self.speed -= 0.1;
+      }
     }
   }
 }
@@ -104,12 +98,26 @@ Character.prototype.action = function (isClicked, objects) {
     const ctx = this.context;
     //move line
     ctx.beginPath();
-    ctx.moveTo(self.x, self.y);
-    ctx.lineTo(isClicked.x, isClicked.y);
+    for(let i in this.temp){
+      const self = this.temp[i];
+      for(let j in this.temp[i]){
+        const me = self[j];
+        if ( j === 0 ){
+          ctx.moveTo(me.x, me.y);
+        }
+        else {
+          ctx.lineTo(me.x, me.y);
+        }
+      }
+    }
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.strokeStyle = 'rgb(255, 0, 0, 0.7)';
+    ctx.closePath();
 
+    //all move route
+
+    ctx.beginPath();
     //character
     const t1 = direction(self, isClicked, 30, 1);
     const t2 = direction(self, isClicked, 19, 1.12);
