@@ -47,8 +47,7 @@ Character.prototype.move = function (isClicked, objects) {
   if( JSON.stringify(this.goal) !== JSON.stringify(isClicked) ){
     this.goal = isClicked;
     const goal = {x: fx, y: fy};
-    this.path = [{x: self.x, y: self.y},{x: goal.x, y: goal.y}];
-    this.temp = pathFinder({x: self.x, y: self.y}, goal, objects);
+    this.path = pathFinder({x: self.x, y: self.y}, goal, objects);
   }
 
   if( this.goal.x !== undefined ){
