@@ -49,6 +49,7 @@ Character.prototype.move = function (isClicked, objects) {
     const goal = {x: fx, y: fy};
     this.path = [{x: self.x, y: self.y},{x: goal.x, y: goal.y}];
     this.temp = pathFinder({x: self.x, y: self.y}, goal, objects);
+    console.log(this.temp);
   }
 
   if( this.goal.x !== undefined ){
@@ -97,23 +98,21 @@ Character.prototype.action = function (isClicked, objects) {
 
     const ctx = this.context;
     //move line
-    ctx.beginPath();
-    for(let i in this.temp){
+    for (let i in this.temp){
       const self = this.temp[i];
-      for(let j in this.temp[i]){
-        const me = self[j];
-        if ( j === 0 ){
-          ctx.moveTo(me.x, me.y);
-        }
-        else {
-          ctx.lineTo(me.x, me.y);
+      if( i == 0 ){
+        ctx.beginPath();
+        ctx.moveTo(self.x, self.y);
+      }
+      else{ 
+        ctx.lineTo(self.x, self.y);
+        if( i == this.temp.length - 1 ){
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.closePath();
         }
       }
     }
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.strokeStyle = 'rgb(255, 0, 0, 0.7)';
-    ctx.closePath();
 
     //all move route
 

@@ -5,25 +5,47 @@ export default function pathFinder (self, goal, objects) {
     y: self.y
   }]];
   let paths = searchPath (temp, goal, objects);
-
-  for ( let i in paths ){
-    paths[i].push(goal);
+  if(goal.x !== undefined){
+    console.log('set!!!');
+    paths.map((el)=> el.push({x: goal.x, y: goal.y}));
   }
-
-  console.log(paths);
+  if(paths[0].length > 1){
+    const idx = measureShortestPath(paths);
+    return paths[idx];
+  }
   return paths;
 }
 
 function measureShortestPath (paths) {
-
+  console.log('measure');
+  let temp = [];
+  for (let j in paths){
+    const el = paths[j];
+    let distance = 0;
+    for(let i in el){
+      if( Number(i) == el.length - 1){
+        temp.push(distance);
+      } else{
+        const x1 = el[i].x;
+        const x2 = el[Number(i)+1].x;
+        const y1 = el[i].y;
+        const y2 = el[Number(i)+1].y;
+        const res = Math.sqrt(Math.pow(x1 - x2,2)+ Math.pow(y1 - y2, 2),2);
+        distance += res;
+      }
+    }
+  }
+  const s = Math.min.apply(null , temp);
+  return temp.indexOf(s);
 }
 // [[{},{},{}]]
 function searchPath (previousPath, goal, objects) {
-  let result = previousPath;
-  let collisionToggle = false;
+  let result = [];
   for (let i in previousPath) {
     const self = previousPath[i][previousPath[i].length - 1];
+    let collisionCheck = false;
     let shortestPath = Math.sqrt(Math.pow(self.x - goal.x,2)+ Math.pow(self.y - goal.y, 2),2);
+    let resultTemp = [];
     const x1 = self.x;
     const x2 = goal.x;
     const y1 = self.y;
@@ -48,21 +70,28 @@ function searchPath (previousPath, goal, objects) {
           const distance = Math.sqrt(Math.pow(rs.x - x1,2)+ Math.pow(rs.y - y1, 2),2);          
           if(distance >= 2 && distance < shortestPath){
             shortestPath = distance;
-            collisionToggle = true;
-            result = [];
+            resultTemp = [];
+            collisionCheck = true;
             let temp = copyObjJSON(previousPath[i]);
             temp.push({x: x3, y: y3});
-            result.push(temp);
+            resultTemp.push(temp);
             temp = copyObjJSON(previousPath[i]);
             temp.push({x: x4, y: y4});
-            result.push(temp);
+            resultTemp.push(temp);
           }
         }
       }
     }
+    if(!collisionCheck){
+      result.push(previousPath[i]);
+    } else {
+      result = resultTemp;
+    }
   }
-  if (collisionToggle){
-    const temp = copyObjJSON(result);
+
+  if(result.length > previousPath.length){
+    console.log('re');
+    let temp = copyObjJSON(result);
     result = searchPath(temp, goal, objects);
   }
   return result;

@@ -80,25 +80,28 @@ class App {
     this.context.clearRect(0,0, this.stageWidth, this.stageHeight);
     
     
+    
     for(var key in this.object){
       const self = this.object[key]
-      this.context.beginPath();
       for(var idx in self.x) {
         const x = self.x[idx];
         const y = self.y[idx];
-        if(idx === 0){
+        if(idx == 0){
+          this.context.beginPath();
           this.context.moveTo(x, y);
         }
         else {
           this.context.lineTo(x, y);
+          if(idx == self.x.length -1){
+            this.context.lineWidth = 2;
+            this.context.stroke();
+            this.context.closePath();
+          }
         }
       }
-      this.context.lineWidth = 2;
-      this.context.stroke();
-      this.context.strokeStyle = 'rgb(255, 0, 0, 0.7)';
-      this.context.closePath();
     }
 
+    
     this.character.action(this.click, this.object);
 
     window.requestAnimationFrame(this.animate.bind(this));
