@@ -49,7 +49,6 @@ Character.prototype.move = function (isClicked, objects) {
     const goal = {x: fx, y: fy};
     this.path = [{x: self.x, y: self.y},{x: goal.x, y: goal.y}];
     this.temp = pathFinder({x: self.x, y: self.y}, goal, objects);
-    console.log(this.temp);
   }
 
   if( this.goal.x !== undefined ){

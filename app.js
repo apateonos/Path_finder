@@ -31,21 +31,34 @@ class App {
       y: undefined
     }
 
-    this.object =
-      [{
-        x: [400, 400],
-        y: [100, 500]
-      },{
-        x: [450, 450],
-        y: [600, 300]
-      },{
-        x: [500, 500],
-        y: [200, 400]  
-      }/* ,
-      {
-        x: [500+Math.random()*100, 500+Math.random()*100, 600+Math.random()*100, 550+Math.random()*100, 450+Math.random()*100],
-        y: [700+Math.random()*100, 600+Math.random()*100, 700+Math.random()*100, 1000+Math.random()*100, 1000+Math.random()*100]
-      } */
+    this.objects = [
+      [
+        {
+          x: 300,
+          y: 200
+        },
+        {
+          x: 300,
+          y: 200
+        }
+      ],[
+        {
+          x: 350,
+          y: 100
+        },
+        {
+          x: 350,
+          y: 500
+        }
+      ],[
+        {
+          x: 500,
+          y: 350
+        },{
+          x: 500,
+          y: 760
+        }
+      ]
     ]
 
     window.requestAnimationFrame(this.animate.bind(this));
@@ -77,32 +90,8 @@ class App {
   }
 
   animate() {
-    this.context.clearRect(0,0, this.stageWidth, this.stageHeight);
-    
-    
-    
-    for(var key in this.object){
-      const self = this.object[key]
-      for(var idx in self.x) {
-        const x = self.x[idx];
-        const y = self.y[idx];
-        if(idx == 0){
-          this.context.beginPath();
-          this.context.moveTo(x, y);
-        }
-        else {
-          this.context.lineTo(x, y);
-          if(idx == self.x.length -1){
-            this.context.lineWidth = 2;
-            this.context.stroke();
-            this.context.closePath();
-          }
-        }
-      }
-    }
-
-    
-    this.character.action(this.click, this.object);
+    this.context.clearRect(0,0, this.stageWidth, this.stageHeight);    
+    this.character.action(this.click, this.objects);
 
     window.requestAnimationFrame(this.animate.bind(this));
   }
