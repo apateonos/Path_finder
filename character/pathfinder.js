@@ -3,11 +3,35 @@ export default function pathFinder (self, goal, objects) {
   if (objects){
     paths = findPaths(paths, goal, objects);
   }
-  paths.map(el => el.push({x: goal.x, y: goal.y}));
-  const result = calcShortestPath(paths);
+  paths.map(el => el.push({x: goal.x, y: goal.y})); // add goal path
+  let result = calcShortestPath(paths); // find shortest path
+  result = optimizePath(result, objects);
   return result;
 }
 
+function optimizePath (path, objects) {
+  let result = path;
+  console.log('b',result)
+  let toggle = true;
+  if ( path === undefined || path.length <= 2){ // Straight is already optimized
+    return path;
+  }
+
+  for (let i in path) {
+    let nNum = Number(i) + 2;
+    if( !findCollision(path[i], path[nNum], objects) && toggle ) {
+      toggle = false;
+      result.splice(Number(i) + 1,1);
+    } else {
+      toggle = true;
+    }
+
+    if(nNum === path.length - 1){
+      console.log('a',result);
+      return result;
+    }
+  }
+}
 
 // [[{},{},{}]]
 function findPaths (previousPath, goal, objects) {
@@ -24,10 +48,10 @@ function findPaths (previousPath, goal, objects) {
       let p2 = DeepCopy(previousPath[i]);
 
       //console.log('new path check',p1, p2);
-      console.log(nWayPoint1, nWayPoint2);
-      console.log(p1, p2);
-
-      /*       if ( findCollision(self, res[0], objects) ) {
+      //console.log(nWayPoint1, nWayPoint2);
+      //console.log(p1, p2);
+/* 
+      if ( findCollision(self, res[0], objects) ) {
         const temp = [[self]];
         const newPaths = findPaths(temp, res[0], objects);
         nWayPoint1 = calcShortestPath(newPaths);
@@ -37,28 +61,28 @@ function findPaths (previousPath, goal, objects) {
         const newPaths = findPaths(temp, res[0], objects);
         nWayPoint2 = calcShortestPath(newPaths);
       } */
-      
+
       for (let i in nWayPoint1){
         p1.push(nWayPoint1[i]);
       }
       for (let i in nWayPoint2){
         p2.push(nWayPoint2[i]);
       }
-      console.log(p1, p2);
+      //console.log(p1, p2);
       result.push(p1);
       result.push(p2);
     } else {
-      console.log(previousPath[i]);
+      //console.log(previousPath[i]);
       result.push(previousPath[i]);
     }
   }
   
   //console.log(result);
   if(result.length !== previousPath.length){ //check result add path
-    console.log('more want findPath!!');
-    console.log('before',result);
+    //console.log('more want findPath!!');
+    //console.log('before',result);
     result = findPaths(result, goal, objects);
-    console.log('after',result);
+    //console.log('after',result);
   }
   return result;
 }
