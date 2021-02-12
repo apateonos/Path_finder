@@ -34,16 +34,16 @@ class App {
     this.objects = [
       [
         {
-          x: 300,
+          x: 500,
           y: 200
         },
         {
-          x: 300,
-          y: 200
+          x: 600,
+          y: 700
         }
       ],[
         {
-          x: 350,
+          x: 400,
           y: 100
         },
         {
@@ -54,7 +54,8 @@ class App {
         {
           x: 500,
           y: 350
-        },{
+        },
+        {
           x: 500,
           y: 760
         }
@@ -93,6 +94,24 @@ class App {
     this.context.clearRect(0,0, this.stageWidth, this.stageHeight);    
     this.character.action(this.click, this.objects);
 
+    for(let i in this.objects){
+      const s = this.objects[i];
+      for(let j in s){
+        const m = s[j];
+        if (j == 0){
+          this.context.beginPath();
+          this.context.moveTo(m.x, m.y);
+        }else {
+          this.context.lineTo(m.x, m.y);
+
+          if( j == s.length - 1){
+            this.context.stroke();
+            this.context.lineWidth = 2;
+            this.context.closePath();
+          }
+        }
+      }
+    }
     window.requestAnimationFrame(this.animate.bind(this));
   }
 }

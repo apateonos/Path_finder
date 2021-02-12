@@ -1,39 +1,80 @@
 export default function pathFinder (self, goal, objects) {
-  const startPath = [[self]];
-  const paths = searchPaths(startPath, goal, objects);
-  const result = measureShortestPath(paths);
+  let paths = [[self]];
+  if (objects){
+    paths = findPaths(paths, goal, objects);
+  }
+  paths.map(el => el.push({x: goal.x, y: goal.y}));
+  const result = calcShortestPath(paths);
   return result;
 }
 
 
 // [[{},{},{}]]
-function searchPaths (previousPath, goal, objects) {
+function findPaths (previousPath, goal, objects) {
   //console.log('previousPath', previousPath);
+  let result = [];
   for (let i in previousPath) {
     const self = previousPath[i][previousPath[i].length - 1];
-    const res = searchCollision(self, goal, objects);
+    const res = findCollision(self, goal, objects);
     //console.log(res);
     if ( res ) {
-      console.log(res);
-      const p1 = searchCollision(self, res[0], objects);
-      const p2 = searchCollision(self, res[1], objects);
+      let nWayPoint1 = [res[0]];
+      let nWayPoint2 = [res[1]];
+      let p1 = DeepCopy(previousPath[i]);
+      let p2 = DeepCopy(previousPath[i]);
+
+      //console.log('new path check',p1, p2);
+      console.log(nWayPoint1, nWayPoint2);
       console.log(p1, p2);
-      if ( p1 ) {
-        let temp = self.push(res[0]);
-        console.log('t',temp);
+
+      /*       if ( findCollision(self, res[0], objects) ) {
+        const temp = [[self]];
+        const newPaths = findPaths(temp, res[0], objects);
+        nWayPoint1 = calcShortestPath(newPaths);
       }
+      if ( findCollision(self, res[1], objects) ) {
+        const temp = [[self]];
+        const newPaths = findPaths(temp, res[0], objects);
+        nWayPoint2 = calcShortestPath(newPaths);
+      } */
+      
+      for (let i in nWayPoint1){
+        p1.push(nWayPoint1[i]);
+      }
+      for (let i in nWayPoint2){
+        p2.push(nWayPoint2[i]);
+      }
+      console.log(p1, p2);
+      result.push(p1);
+      result.push(p2);
+    } else {
+      console.log(previousPath[i]);
+      result.push(previousPath[i]);
     }
   }
+  
+  //console.log(result);
+  if(result.length !== previousPath.length){ //check result add path
+    console.log('more want findPath!!');
+    console.log('before',result);
+    result = findPaths(result, goal, objects);
+    console.log('after',result);
+  }
+  return result;
 }
 
-function searchCollision (self, goal, objects) {
+
+
+
+
+function findCollision (self, goal, objects) {
   //console.log("self",self);
   const x1 = self.x;
   const y1 = self.y;
   const x2 = goal.x;
   const y2 = goal.y;
   
-  let shortestCollisionDistance = measureDistance(x1, x2, y1, y2);
+  let shortestCollisionDistance = calcDistance(x1, x2, y1, y2);
   let result = false;
   //console.log('want to go path', x1, x2, y1, y2);
   for(let j in objects){
@@ -49,9 +90,9 @@ function searchCollision (self, goal, objects) {
       const y3 = obj[k].y;
       const y4 = obj[nNum].y;
       //console.log(x3, y3, x4, y4);
-      const checkCollision = detectCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4);
+      const checkCollision = calcCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4);
       if (checkCollision && checkCollision.x !== x1 && checkCollision.y !== y1) {
-        const distance = measureDistance(x1, checkCollision.x, y1, checkCollision.y);
+        const distance = calcDistance(x1, checkCollision.x, y1, checkCollision.y);
         //console.log(distance, shortestCollisionDistance);
         if(distance < shortestCollisionDistance) {
           shortestCollisionDistance = distance;
@@ -72,11 +113,11 @@ function DeepCopy (target) {
   return JSON.parse(JSON.stringify(target));
 }
 
-function measureDistance (x1, x2, y1, y2) {
+function calcDistance (x1, x2, y1, y2) {
   return Math.sqrt(Math.pow(x1 - x2,2)+ Math.pow(y1 - y2, 2),2);
 }
 
-function detectCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4) {
+function calcCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4) {
   const rX = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4))/((x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4));
   const rY = ((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4))/((x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4));      
   if(
@@ -92,7 +133,7 @@ function detectCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4) {
   return false;
 }
 
-function measureShortestPath (paths) {
+function calcShortestPath (paths) {
   let temp = [];
   for (let j in paths){
     const el = paths[j];
@@ -110,9 +151,12 @@ function measureShortestPath (paths) {
       }
     }
   }
-  const s = Math.min.apply(null , temp);
-  return temp.indexOf(s);
+
+  const shortestPathDistance = Math.min.apply(null , temp);
+  return paths[temp.indexOf(shortestPathDistance)];
 }
+
+
 /* 
     const self = previousPath[i][previousPath[i].length - 1];
     let collisionCheck = false;
@@ -136,8 +180,8 @@ function measureShortestPath (paths) {
           var y3 = target.y[k];
           var y4 = target.y[Number(k)+1];
         }
-        console.log(previousPath.length,'번째 선 검사', detectCollision(x1, x2, x3, x4, y1, y2 ,y3 ,y4));
-        const rs = detectCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4);
+        console.log(previousPath.length,'번째 선 검사', calcCollision(x1, x2, x3, x4, y1, y2 ,y3 ,y4));
+        const rs = calcCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4);
         if (rs) {
           const distance = Math.sqrt(Math.pow(rs.x - x1,2)+ Math.pow(rs.y - y1, 2),2);          
           if(distance >= 2 && distance < shortestPath){
@@ -165,6 +209,6 @@ function measureShortestPath (paths) {
   console.log(result.length, previousPath.length);
   if(result.length > previousPath.length){
     let temp = copyObjJSON(result);
-    result = searchPath(temp, goal, objects);
+    result = findPath(temp, goal, objects);
   }
   return result; */
