@@ -1,7 +1,7 @@
 export default function pathFinder (self, goal, objects) {
   let paths = [[self]];
   if (objects){
-    paths = findPaths(paths, goal, objects);
+    paths = findPaths(paths, goal, objects, 30);
   }
   paths.map(el => el.push({x: goal.x, y: goal.y})); // add goal path
   let result = calcShortestPath(paths); // find shortest path
@@ -11,7 +11,7 @@ export default function pathFinder (self, goal, objects) {
 
 function optimizePath (path, objects) {
   let result = path;
-  console.log('b',result)
+  //console.log('b',result)
   let toggle = true;
   if ( path === undefined || path.length <= 2){ // Straight is already optimized
     return path;
@@ -27,16 +27,23 @@ function optimizePath (path, objects) {
     }
 
     if(nNum === path.length - 1){
-      console.log('a',result);
+      //console.log('a',result);
       return result;
     }
   }
 }
 
 // [[{},{},{}]]
-function findPaths (previousPath, goal, objects) {
-  //console.log('previousPath', previousPath);
+function findPaths (previousPath, goal, objects, lock) {
+  let count = lock;
   let result = [];
+  
+  if(30 === count) {
+    return result;
+  } else {
+    count += 1;
+  }
+  //console.log('previousPath', previousPath);
   for (let i in previousPath) {
     const self = previousPath[i][previousPath[i].length - 1];
     const res = findCollision(self, goal, objects);
@@ -50,8 +57,8 @@ function findPaths (previousPath, goal, objects) {
       //console.log('new path check',p1, p2);
       //console.log(nWayPoint1, nWayPoint2);
       //console.log(p1, p2);
-      
-/* 
+
+/* need Bug Fix
       if ( findCollision(self, res[0], objects) ) {
         const temp = [[self]];
         const newPaths = findPaths(temp, res[0], objects);
@@ -83,7 +90,7 @@ function findPaths (previousPath, goal, objects) {
   if(result.length !== previousPath.length){ //check result add path
     //console.log('more want findPath!!');
     //console.log('before',result);
-    result = findPaths(result, goal, objects);
+    result = findPaths(result, goal, objects, count);
     //console.log('after',result);
   }
   return result;
@@ -104,7 +111,7 @@ function findCollision (self, goal, objects) {
   let result = false;
   //console.log('want to go path', x1, x2, y1, y2);
   for(let j in objects){
-    const obj = objects[j];
+    const obj = objects[j].p;
     //console.log(obj,"object");
     for(let k in obj){
       let nNum = Number(k)+1;
@@ -148,10 +155,10 @@ function calcCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4) {
   const rY = ((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4))/((x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4));      
   if(
     !isNaN(rX) && !isNaN(rY) 
-    && Math.min(x1, x2)<= rX && rX <= Math.max(x1, x2) 
-    && Math.min(y1, y2)<= rY && rY <= Math.max(y1, y2)
-    && Math.min(x3, x4)<= rX && rX <= Math.max(x3, x4) 
-    && Math.min(y3, y4)<= rY && rY <= Math.max(y3, y4)
+    && Math.min(x1, x2) < rX && rX < Math.max(x1, x2) 
+    && Math.min(y1, y2) < rY && rY < Math.max(y1, y2)
+    && Math.min(x3, x4) < rX && rX < Math.max(x3, x4) 
+    && Math.min(y3, y4) < rY && rY < Math.max(y3, y4)
   ){
     let result = {x: rX, y: rY};
     return result;

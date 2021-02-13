@@ -126,8 +126,8 @@ Character.prototype.action = function (isClicked, objects) {
     
     ctx.moveTo(self.x, self.y);
     ctx.arc(self.x, self.y, 15, 0, 2*Math.PI, false);
-    ctx.fill();
     ctx.fillStyle = 'white';
+    ctx.fill();
     ctx.closePath();
   }
 
