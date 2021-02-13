@@ -1,22 +1,24 @@
 import direction from './direction.js';
-import pathFinder from './pathfinder.js';
+import pathFinder from './pathFinder.js';
 
 export default function Character (settings) {
   this.stageWidth = settings.stageWidth;
   this.stageHeight = settings.stageHeight;
   this.context = settings.context;
   this.life = 0;
-  this.goal = {
+  this.deathCount = 50;
+  this.temp = [];
+  this.path = [];
+  this.destination = {
     x: undefined,
     y: undefined
-  }
-  this.deathCount = 50;
-  this.path = [];
+  };
+
   this.settings = {
     lv: 1,
     hp: 100,
     mp: 10,
-    maximumSpeed: 5,
+    maximumSpeed: 4,
     speed: 0,
     mass: 30,
     attackSpeed: 10,
@@ -31,99 +33,138 @@ export default function Character (settings) {
 
 console.log(Character.prototype);
 
-Character.prototype.input = function (){
-
-}
-
-Character.prototype.response = function (settings) {
-
-}
-
 Character.prototype.move = function (isClicked, objects) {
   const self = this.settings;
-  const fx = isClicked.x;
-  const fy = isClicked.y;
+  if ( this.destination.x === undefined || this.destination.y === undefined || this.destination.x !== isClicked.x || this.destination.y !== isClicked.y ){
+    //console.log('path make!!');
+    this.destination.x = isClicked.x;
+    this.destination.y = isClicked.y;
 
-  if( JSON.stringify(this.goal) !== JSON.stringify(isClicked) ){
-    this.goal = isClicked;
-    const goal = {x: fx, y: fy};
-    this.path = pathFinder({x: self.x, y: self.y}, goal, objects);
+    this.path = [{
+      x: this.destination.x,
+      y: this.destination.y
+    }]
+    pathFinder(self, this.destination, objects);
   }
 
-  if( this.goal.x !== undefined ){
-    var waypoint = this.path[0];
-    const distance = Math.sqrt(Math.pow(self.x - waypoint.x, 2) + Math.pow(self.y - waypoint.y, 2), 2);
-
-    if( distance === 0 && this.path.length !== 1){
-      this.path.splice(0,1);
+  let waypoint = this.path[0];
+  //console.log(waypoint.x, self.x);
+  const distance = Math.sqrt(Math.pow(self.x - waypoint.x,2) + Math.pow(self.y - waypoint.y,2),2);
+  //console.log(distance);
+  if( self.speed <= distance ) {
+    const dir = direction(self, waypoint, self.speed);
+    self.x += dir.x;
+    self.y += dir.y;
+    if (self.speed < self.maximumSpeed){
+      self.speed += 0.1;
     }
-
-    if( self.speed <= distance ) {
-      const dir = direction(self, waypoint, self.speed);
-      self.x += dir.x;
-      self.y += dir.y;
-      if (self.speed < self.maximumSpeed){
-        self.speed += 0.1;
-      }
-    } else {
-      self.x = waypoint.x;
-      self.y = waypoint.y;
-      if(self.speed > 0){
-        self.speed -= 0.1;
-      }
+  } else {
+    self.x = waypoint.x;
+    self.y = waypoint.y;
+    if(self.speed > 0){
+      self.speed -= 0.1;
     }
+  }
+
+  if( distance <= self.speed){
+    this.path.splice(0,1);
   }
 }
 
-Character.prototype.action = function (isClicked, objects) {
+Character.prototype.action = function (isClicked, isMouse, objects) {
   // live
   const self = this.settings;
-  
   if( this.life <= 0 ){
     if( this.deathCount !== 0 ){
       this.deathCount -= 1;
     }else{
       this.settings.x = this.stageWidth*Math.random();
       this.settings.y = this.stageHeight*Math.random();
-      this.goal.x = 600;
-      this.goal.y = 600;
       this.life += 1;
+      this.deathCount = 1000;
     }
   } 
   
   else {
-    this.move(isClicked, objects);
-
     const ctx = this.context;
-    //move line
-    for (let i in this.temp){
-      const self = this.temp[i];
-      if( i == 0 ){
-        ctx.beginPath();
-        ctx.moveTo(self.x, self.y);
-      }
-      else{ 
-        ctx.lineTo(self.x, self.y);
-        if( i == this.temp.length - 1 ){
-          ctx.lineWidth = 2;
-          ctx.stroke();
-          ctx.closePath();
-        }
-      }
-    }
-
     //all move route
 
-    ctx.beginPath();
-    //character
-    const t1 = direction(self, isClicked, 30, 1);
-    const t2 = direction(self, isClicked, 19, 1.12);
-    const t3 = direction(self, isClicked, 19, -1.12);
+    if(isClicked && (isClicked.x !== self.x || isClicked.y !== self.y)){
+      this.move(isClicked, objects);
 
-    ctx.moveTo(t1.x+self.x, t1.y+self.y);
-    ctx.lineTo(t2.x+self.x, t2.y+self.y);
-    ctx.lineTo(t3.x+self.x, t3.y+self.y);
+      ctx.beginPath();
+      const t1 = direction(self, isClicked, 40, 1);
+      const t2 = direction(self, isClicked, 19, 1.15);
+      const t3 = direction(self, isClicked, 19, -1.15);
+
+      ctx.moveTo(t1.x+self.x, t1.y+self.y);
+      ctx.lineTo(t2.x+self.x, t2.y+self.y);
+      ctx.lineTo(t3.x+self.x, t3.y+self.y);
+
+      ctx.fillStyle = 'red';
+      ctx.fill();
+      ctx.closePath();
+    }
     
+    if(this.path.length > 0){
+      ctx.beginPath();
+      ctx.moveTo(self.x, self.y);
+      for (let i in this.path) {
+        const x = this.path[i].x;
+        const y = this.path[i].y;
+
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = 'red';
+      ctx.stroke();
+      ctx.closePath();
+
+      if(this.temp.length > 0){
+        ctx.beginPath();
+        for (let i in this.temp) {
+          const m = this.temp[i];
+          if ( i == 0 ) {
+            ctx.moveTo(m.x, m.y);
+          } else {
+            ctx.lineTo(m.x, m.y);
+          }
+        }
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgb(0, 0, 255, 0.3)';
+        ctx.stroke();
+        ctx.closePath();
+      }
+
+      ctx.beginPath();
+      const t1 = direction(self, this.path[0], 35, 1);
+      const t2 = direction(self, this.path[0], 19, 1.13);
+      const t3 = direction(self, this.path[0], 19, -1.13);
+
+      ctx.moveTo(t1.x+self.x, t1.y+self.y);
+      ctx.lineTo(t2.x+self.x, t2.y+self.y);
+      ctx.lineTo(t3.x+self.x, t3.y+self.y);
+
+      ctx.fillStyle = 'blue';
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    if(isMouse){
+      ctx.beginPath();
+      const t1 = direction(self, isMouse, 30, 1);
+      const t2 = direction(self, isMouse, 19, 1.12);
+      const t3 = direction(self, isMouse, 19, -1.12);
+
+      ctx.moveTo(t1.x+self.x, t1.y+self.y);
+      ctx.lineTo(t2.x+self.x, t2.y+self.y);
+      ctx.lineTo(t3.x+self.x, t3.y+self.y);
+
+      ctx.fillStyle = 'yellow';
+      ctx.fill();
+      ctx.closePath();
+    }
+    
+    ctx.beginPath();
     ctx.moveTo(self.x, self.y);
     ctx.arc(self.x, self.y, 15, 0, 2*Math.PI, false);
     ctx.fillStyle = 'white';

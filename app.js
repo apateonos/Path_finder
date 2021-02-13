@@ -10,7 +10,7 @@ class App {
 
     window.addEventListener('contextmenu', event => event.preventDefault());
     window.addEventListener('mousedown', this.mouseClick.bind(this), false);
-
+    window.addEventListener('mousemove', this.mouseMove.bind(this), false);
     window.addEventListener('resize', this.resize.bind(this), false);
     this.resize();
 
@@ -26,34 +26,21 @@ class App {
     this.object = new Object({
       ...defaultSet
     })
-
-    this.click = {
-      x: undefined,
-      y: undefined
-    } 
-
-    this.mouse = {
-      x: undefined,
-      y: undefined
-    }
     window.requestAnimationFrame(this.animate.bind(this));
   }
 
   mouseClick(e) {
-    this.click = {
+    this.isMouseClicked = {
       x: e.offsetX,
       y: e.offsetY
     }
-    // console.log(this.click);
-    if(e.button === 2){
-      this.rightClick = true;
-    } else {
-      this.leftClick = true;
-    }
   }
 
-  mouseLocation(e) {
-
+  mouseMove(e) {
+    this.isMousePosition = {
+      x: e.offsetX,
+      y: e.offsetY
+    }
   }
 
   resize() {
@@ -67,7 +54,7 @@ class App {
   animate() {
     this.context.clearRect(0,0, this.stageWidth, this.stageHeight);
     this.object.setObj();
-    this.character.action(this.click, this.object.objects);
+    this.character.action(this.isMouseClicked, this.isMousePosition, this.object.objects);
 
     window.requestAnimationFrame(this.animate.bind(this));
   }
