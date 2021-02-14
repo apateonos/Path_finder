@@ -44,7 +44,7 @@ Character.prototype.move = function (isClicked, objects) {
       x: this.destination.x,
       y: this.destination.y
     }]
-    pathFinder(self, this.destination, objects);
+    this.temp = pathFinder(self, this.destination, objects);
   }
 
   let waypoint = this.path[0];
@@ -120,19 +120,21 @@ Character.prototype.action = function (isClicked, isMouse, objects) {
       ctx.closePath();
 
       if(this.temp.length > 0){
-        ctx.beginPath();
-        for (let i in this.temp) {
-          const m = this.temp[i];
-          if ( i == 0 ) {
-            ctx.moveTo(m.x, m.y);
-          } else {
-            ctx.lineTo(m.x, m.y);
+        for(let j in this.temp){
+          ctx.beginPath();
+          for (let i in this.temp[j]) {
+            const m = this.temp[j][i]
+            if ( i == 0 ) {
+              ctx.moveTo(m.x, m.y);
+            } else {
+              ctx.lineTo(m.x, m.y);
+            }
           }
+          ctx.lineWidth = 8;
+          ctx.strokeStyle = 'rgb(255, 255, 255, 0.3)';
+          ctx.stroke();
+          ctx.closePath();
         }
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = 'rgb(0, 0, 255, 0.3)';
-        ctx.stroke();
-        ctx.closePath();
       }
 
       ctx.beginPath();

@@ -2,11 +2,10 @@ export default function pathFinder (self, destination, objects) {
   let result;
   let temp = {x: self.x, y: self.y}; 
   if (findCollision(self, destination, objects)){
-    findNewPath([[temp]], destination, objects, 0);
+    result = findNewPath([[temp]], destination, objects, 0);
   } else {
     return [destination];
   }
-  
   return result;
 };
 
@@ -15,7 +14,7 @@ function copy (target) {
 }
 
 function findNewPath (self, destination, objects, count) {
-  if( count >= 5 ) {
+  if( count >= 10 ) {
     return self;
   } else (
     count += 1
@@ -29,18 +28,27 @@ function findNewPath (self, destination, objects, count) {
     const cp = findCollision(nPath, destination, objects);
     //console.log("cp",cp);
     if ( cp ) {
-      let cp1 = [copy(nPath)];
-      let cp2 = [copy(nPath)];
+      //console.log(self[i])
+      let cp1 = copy(self[i]);
+      let cp2 = copy(self[i]);
       cp1.push(cp[0]);
       cp2.push(cp[1]);
       //console.log(cp1, cp2);
-      result.push(cp1,cp2);
-      console.log("result",result);
-      result = findNewPath(result, destination, objects, count);
+      if(nPath.x !== cp[0].x && nPath.y !== cp[0].y){
+        result.push(cp1);
+      }
+      if(nPath.x !== cp[1].x && nPath.y !== cp[1].y){
+        result.push(cp2);
+      }
     } else {
       result.push(self[i]);
     }
   }
+  console.log(result);  
+  if (result.length !== self.length) {
+    result = findNewPath(result, destination, objects, count);
+  }
+
   return result;
 }
 
@@ -98,10 +106,27 @@ function findCollision (self, destination, objects) {
         continue;
       }
 
-      const x3 = target.angle[j].x;
-      const x4 = target.angle[nNum].x;
-      const y3 = target.angle[j].y;
-      const y4 = target.angle[nNum].y;
+      let x3 = target.angle[j].x;
+      let x4 = target.angle[nNum].x;
+      let y3 = target.angle[j].y;
+      let y4 = target.angle[nNum].y;
+
+      if(x3 === Math.max(x3, x4)){
+        x3 += 1;
+        x4 -= 1;
+      } else {
+        x3 -= 1;
+        x4 += 1;
+      }
+
+      if(y3 === Math.max(y3, y4)){
+        y3 += 1;
+        y4 -= 1;
+      } else {
+        y3 -= 1;
+        y4 += 1;
+      }
+
       const rc = calcCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4);
 
       if (rc) {
