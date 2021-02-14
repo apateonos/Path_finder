@@ -4,7 +4,7 @@ export default function Object (settings) {
   this.context = settings.context;
   this.objects = [];
   this.settings = {
-    maximum: 1,
+    maximum: 4,
     radius: 200,
     mass: 100
   }
