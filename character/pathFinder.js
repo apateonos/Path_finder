@@ -4,8 +4,13 @@ export default function pathFinder (self, destination, objects) {
   if (findCollision(self, destination, objects)){
     result = findNewPath([[temp]], destination, objects, 0);
   } else {
-    return [destination];
+    result = [[temp]];
   }
+  for (let i in result) {
+    result[i].push({x: destination.x, y: destination.y});
+  }
+  console.log(result);
+
   return result;
 };
 
@@ -14,7 +19,7 @@ function copy (target) {
 }
 
 function findNewPath (self, destination, objects, count) {
-  if( count >= 10 ) {
+  if( count >= 15 ) {
     return self;
   } else (
     count += 1
@@ -23,23 +28,42 @@ function findNewPath (self, destination, objects, count) {
   //console.log('self',self);
   let result = [];
   for(let i in self){
-    const nPath = self[i][self[i].length - 1];
-
-    const cp = findCollision(nPath, destination, objects);
+    const p = self[i];
+    const lw = self[i][self[i].length - 1];
+    
+    const cp = findCollision(lw, destination, objects);
     //console.log("cp",cp);
     if ( cp ) {
+      let toggle = false;
       //console.log(self[i])
-      let cp1 = copy(self[i]);
-      let cp2 = copy(self[i]);
+      for(let j in p){
+        const px = p[j].x;
+        const py = p[j].y;
+        //console.log(cp[0], cp[1]);
+
+        if(px === cp[0].x && py === cp[0].y || px === cp[1].x && py === cp[1].y){
+          //console.log('또옴!');
+          toggle = true;
+        }
+      }
+
+      if(toggle){
+        result.push(self[i]);
+        //console.log('no make path')
+        continue;
+      }
+      const cp1 = copy(p);
+      const cp2 = copy(p);
+
+      //console.log(lw);
+      //console.log(cp1, cp2);
+    
       cp1.push(cp[0]);
       cp2.push(cp[1]);
       //console.log(cp1, cp2);
-      if(nPath.x !== cp[0].x && nPath.y !== cp[0].y){
-        result.push(cp1);
-      }
-      if(nPath.x !== cp[1].x && nPath.y !== cp[1].y){
-        result.push(cp2);
-      }
+      
+      result.push(cp1);
+      result.push(cp2);
     } else {
       result.push(self[i]);
     }
