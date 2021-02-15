@@ -6,6 +6,8 @@ export default function Character (settings) {
   this.stageHeight = settings.stageHeight;
   this.context = settings.context;
   this.life = 0;
+  this.j = 0;
+  this.sc = 0;
   this.deathCount = 50;
   this.temp = [];
   this.path = [];
@@ -44,8 +46,7 @@ Character.prototype.move = function (isClicked, objects) {
       x: this.destination.x,
       y: this.destination.y
     }]
-    let t = pathFinder(self, this.destination, objects);
-    console.log(t);
+    this.temp = pathFinder(self, this.destination, objects);
   }
 
   let waypoint = this.path[0];
@@ -89,6 +90,49 @@ Character.prototype.action = function (isClicked, isMouse, objects) {
   else {
     const ctx = this.context;
     //all move route
+    if(this.temp.paths) {
+      if(this.temp.paths.length > 0){
+        let j = this.j;
+        this.sc += 1;
+
+        if(this.sc >= 100) {
+          this.sc = 0;
+          this.j += 1;
+          if (this.j > this.temp.paths.length - 1) {
+            this.j = 0;
+          }
+        }
+        ctx.beginPath();
+        for (let k in this.temp.paths[j].w) {
+          const m = this.temp.paths[j].w[k]
+          if ( k == 0 ) {
+            ctx.moveTo(m.x, m.y);
+          } else {
+            ctx.lineTo(m.x, m.y);
+          }
+        }
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgb(255, 255, 255)';
+        ctx.stroke();
+        ctx.closePath();
+      }
+
+      if(this.temp.shortestPath.length > 0){
+        ctx.beginPath();
+          for (let i in this.temp.shortestPath) {
+          const m = this.temp.shortestPath[i]
+          if ( i == 0 ) {
+            ctx.moveTo(m.x, m.y);
+          } else {
+            ctx.lineTo(m.x, m.y);
+          }
+        }
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgb(255, 0, 0, 0.3)';
+        ctx.stroke();
+        ctx.closePath();
+      }
+    }
 
     if(isClicked && (isClicked.x !== self.x || isClicked.y !== self.y)){
       this.move(isClicked, objects);
@@ -116,27 +160,9 @@ Character.prototype.action = function (isClicked, isMouse, objects) {
 
         ctx.lineTo(x, y);
       }
-      ctx.strokeStyle = 'red';
+      ctx.strokeStyle = 'white';
       ctx.stroke();
       ctx.closePath();
-
-      if(this.temp.length > 0){
-        for(let j in this.temp){
-          ctx.beginPath();
-          for (let i in this.temp[j]) {
-            const m = this.temp[j][i]
-            if ( i == 0 ) {
-              ctx.moveTo(m.x, m.y);
-            } else {
-              ctx.lineTo(m.x, m.y);
-            }
-          }
-          ctx.lineWidth = 8;
-          ctx.strokeStyle = 'rgb(255, 255, 255, 0.3)';
-          ctx.stroke();
-          ctx.closePath();
-        }
-      }
 
       ctx.beginPath();
       const t1 = direction(self, this.path[0], 35, 1);

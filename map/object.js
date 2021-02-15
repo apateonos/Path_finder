@@ -5,7 +5,7 @@ export default function Object (settings) {
   this.objects = [];
   this.settings = {
     maximum: 3,
-    radius: 1,
+    radius: 50,
     mass: 50
   }
 }
@@ -42,10 +42,10 @@ Object.prototype.addObj = function (settings) {
 Object.prototype.setObj = function () {
   if(this.objects.length < this.settings.maximum){
     this.addObj({
-      x: 600,//Math.random() * this.stageWidth,
-      y: 600, //Math.random() * this.stageHeight,
+      x: Math.random() * this.stageWidth,
+      y: Math.random() * this.stageHeight,
       //numOfAngle: Math.round(Math.random() * 3 + 3) // 라운드 처리를 할 필요가 있을까?
-      numOfAngle: 4 // + Math.round(3*Math.random())
+      numOfAngle: 2 + Math.round(3*Math.random())
     })
   }
   

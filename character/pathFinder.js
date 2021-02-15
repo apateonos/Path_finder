@@ -1,27 +1,18 @@
 export default function pathFinder (self, destination, objects) {
-  let result;
-  let temp = {
-    paths: [[{x: self.x, y: self.y}]],
-    onObject: undefined,
-    shortestPath: [],
+  let result = {
+    paths: [{o: undefined, w: [{x: self.x, y: self.y}]}]
   };
   if (findCollision(self, destination, objects)){
-    result = makePath(temp, destination, objects, 0);
-  } else {
-    result = {
-      paths: [[{x: self.x, y: self.y}]],
-      onObject: undefined,
-      shortestPath: [],
-    };
+    result = makePath(result, destination, objects, 0);
   }
 
   for (let i in result.paths) {
-    console.log(result.paths[i][result.paths[i].length - 1]);
-    if(result.paths[i][result.paths[i].length - 1]){
-      result.paths[i].push({x: destination.x,y: destination.y});
+    //console.log(result.paths[i].w[result.paths[i].length - 1]);
+    if(result.paths[i].w[result.paths[i].w.length - 1]){
+      result.paths[i].w.push({x: destination.x,y: destination.y});
     }
     else{
-      result.paths[i].pop();
+      result.paths[i].w.pop();
     }
   }
 
@@ -64,7 +55,7 @@ function optimizePath (paths, objects) {
 function selectShortestPath (paths) { 
   let distances = [];
   for (let i in paths) {
-    const p = paths[i];
+    const p = paths[i].w;
     if ( p.length === 2 ) {
       return p;
     }
@@ -74,13 +65,14 @@ function selectShortestPath (paths) {
     }
     distances.push(distance);
   }
-
+  //console.log(distances);
   const idxShortestPath = Math.min.apply(null, distances);
-  return paths[distances.indexOf(idxShortestPath)];
+  //console.log("aslmdasmd",paths[distances.indexOf(idxShortestPath)]);
+  return paths[distances.indexOf(idxShortestPath)].w;
 }
 
 function copy (target) {
-  console.log(target);
+  //console.log(target);
   return JSON.parse(JSON.stringify(target));
 }
 
@@ -93,42 +85,51 @@ function makePath (self, destination, objects, count) {
   //console.log(count);
   //console.log('self',self);
   let result = {
-    paths: [],
-    onObject: undefined,
+    paths: []
   };
 
   let paths = self.paths;
 
   for(let i in paths){
-    const lastWaypoint = paths[i][paths[i].length - 1];
-    
-    const cp = findCollision(lastWaypoint, destination, objects);
+    const self = paths[i];
+    const fw = self.w[self.w.length - 1];
+
+    //console.log('fw', fw);
+    //console.log('self',self);
+    const cp = findCollision(fw, destination, objects, self.o);
 
     //console.log("cp",cp);
     if ( cp ) {
       const newPaths = overcomeObject(cp, destination, objects);
-      let temp = copy(paths[i]);
+      let temp = copy(self.w);
       //console.log(temp);
       if (newPaths) {
-        //console.log('path!');
-        let _temp = copy(paths[i]);
+        let temp_ = copy(self.w);
+        //console.log("newPaths",newPaths);
+
         for (let j in newPaths[0]) {
           temp.push(newPaths[0][j]);
         }
         
-        result.paths.push(temp);
-        result.paths.push(_temp);
+        for (let j in newPaths[1]) {
+          temp_.push(newPaths[1][j]);
+        }
+
+        //console.log(temp, temp_);
+        result.paths.push({o: cp.object, w: temp});
+        result.paths.push({o: cp.object, w: temp_});
       }else {
         //console.log('col!')
         temp.push({x: cp.cp.x, y: cp.cp.y});
-        //console.log(temp);
-        result.paths.push(temp);
         temp.push(false);
+        //console.log(temp);
+        result.paths.push({o: self.o, w: temp});
+        
       }
     } else {
-      result.paths.push(paths[i]);
+      result.paths.push({o: self.o, w: self.w});
     }
-  } 
+  }
   if (result.paths.length !== paths.length) {
     result = makePath(result, destination, objects, count);
   }
@@ -306,7 +307,7 @@ function calcCollision (x1, x2, x3, x4, y1, y2 ,y3 ,y4) {
   return false;
 }
 
-function findCollision (self, destination, objects) {
+function findCollision (self, destination, objects, onObject) {
   //console.log(self, destination, objects);
   let result = false;
   let firstCollisionDistance = calcDistance(self.x, destination.x, self.y, destination.y);
@@ -321,6 +322,10 @@ function findCollision (self, destination, objects) {
   // find all collision point;
   for (let i in objects) {
     const target = objects[i];
+
+    if ( i == onObject) {
+      continue;
+    }
     //console.log(target);
     for (let j in target.angle) {
       //console.log(j,'path');
