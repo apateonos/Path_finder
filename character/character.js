@@ -47,6 +47,7 @@ Character.prototype.move = function (isClicked, objects) {
       y: this.destination.y
     }]
     this.temp = pathFinder(self, this.destination, objects);
+    this.j = 0;
   }
 
   let waypoint = this.path[0];

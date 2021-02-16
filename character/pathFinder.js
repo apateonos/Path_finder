@@ -15,6 +15,7 @@ export default function pathFinder (self, destination, objects) {
       result.paths[i].w.pop();
     }
   }
+  optimizePath(result.paths, objects);
 
   result.shortestPath = selectShortestPath(result.paths);
   console.log(result);
@@ -28,27 +29,8 @@ export default function pathFinder (self, destination, objects) {
 function optimizePath (paths, objects) {
   let result = [];
   for (let i in paths) {
-    const p = paths[i];
-    let pTemp = [p[0]];
-    let optPath = [];
-    let count = 0;
-    for (let j in paths[i]) {
-      pTemp.push(count);
-      count ++;
-    }
-
-    for (let k in p) {
-      if(pTemp.indexOf(k) === -1 ) {
-        continue;
-      }
-      let num = Number(k);
-      const standard = p[k];
-      for (let l = num + 1; l< p.length; l++){
-        if(!calcCollision()) {
-          pTemp.push[l];
-        }
-      }
-    }
+    const p = paths[i].w;
+     
   }
 }
 

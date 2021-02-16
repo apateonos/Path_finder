@@ -4,7 +4,7 @@ export default function Object (settings) {
   this.context = settings.context;
   this.objects = [];
   this.settings = {
-    maximum: 3,
+    maximum: 5,
     radius: 50,
     mass: 50
   }
@@ -45,7 +45,7 @@ Object.prototype.setObj = function () {
       x: Math.random() * this.stageWidth,
       y: Math.random() * this.stageHeight,
       //numOfAngle: Math.round(Math.random() * 3 + 3) // 라운드 처리를 할 필요가 있을까?
-      numOfAngle: 2 + Math.round(3*Math.random())
+      numOfAngle: 4 + Math.round(3*Math.random())
     })
   }
   
